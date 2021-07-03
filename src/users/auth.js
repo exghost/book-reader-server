@@ -41,7 +41,9 @@ const verifyTokens = async (req, res, next) => {
         return next();
     }
 
-    const user = await prisma.user.findFirst(data.userId);
+    const user = await prisma.user.findFirst( {
+        where: { id: data.userId } 
+    });
 
     if(!user || user.count !== data.count) return next();
 
