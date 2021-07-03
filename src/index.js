@@ -1,7 +1,6 @@
 const { ApolloServer } = require('apollo-server-express');
 const express = require('express');
 const cookieParser = require('cookie-parser');
-const { verify } = require('jsonwebtoken');
 
 const { userResolvers, userTypeDefs } = require('./users');
 const { verifyTokens } = require('./users/auth');
