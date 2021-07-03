@@ -21,7 +21,7 @@ const resolvers = {
     Mutation: {
         registerUser: (parent, { data }) => {
             const { email, password } = data;
-            const hashedPassword = bcrypt.hashSync(password)
+            const hashedPassword = bcrypt.hashSync(password, 12);
             return prisma.user.create({
                 data: {
                     email,
