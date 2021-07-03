@@ -12,13 +12,9 @@ const typeDefs = gql`
     }
 
     type Mutation {
-        registerUser(data: UserCreateInput!): User!
+        registerUser(email: String!, password: String!): User!
         login(email: String!, password: String!): User!
-    }
-
-    input UserCreateInput {
-        email: String!
-        password: String!
+        invalidateTokens: Boolean
     }
 `;
 

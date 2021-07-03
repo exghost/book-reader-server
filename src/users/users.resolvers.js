@@ -19,8 +19,7 @@ const resolvers = {
         }
     },
     Mutation: {
-        registerUser: (_, { data }) => {
-            const { email, password } = data;
+        registerUser: (_,  { email, password }) => {
             const hashedPassword = bcrypt.hashSync(password, 12);
             return prisma.user.create({
                 data: {
@@ -45,6 +44,25 @@ const resolvers = {
             res.cookie("access-token", accessToken);
 
             return user;
+        },
+        invalidateTokens: async (_, __, { res, req }) => {
+            if(!req.userId) return false;
+
+            const user = await prisma.user.findFirst({
+                where: { id: req.userId }
+            });
+
+            if(!user) return false;
+
+            await prisma.user.update({
+                where: { id: user.id },
+                data: { count: user.count + 1 }
+            });
+
+            res.cookie('refresh-token', '', { maxAge: 0, overwrite: true});
+            res.cookie('access-token', '', { maxAge: 0, overwrite: true});
+
+            return true;
         }
     }
 }
