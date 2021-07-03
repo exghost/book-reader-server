@@ -5,6 +5,7 @@ const typeDefs = gql`
         id: ID!
         title: String!
         isbn: String
+        filename: String
         owner: User!
     }
 
@@ -16,12 +17,12 @@ const typeDefs = gql`
     }
 
     type Mutation {
-        addBook(data: CreateBookInput!): Book!
+        addBook(title: String!, file: Upload!): Book!
     }
 
     input CreateBookInput {
         title: String!
-        isbn: String
+        isbn: String!
     }
 `;
 
