@@ -22,4 +22,11 @@ model Book {
   filename String?
   owner User @relation(fields: [ownerId], references: [id])
   ownerId Int
+  authors Author[]
+}
+
+model Author {
+  id Int @default(autoincrement()) @id
+  name String
+  books Book[]
 }
