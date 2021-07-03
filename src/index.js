@@ -18,7 +18,11 @@ const startServer = async() => {
     const server = new ApolloServer({ 
         typeDefs, 
         resolvers,
-        context: ({ req, res}) => ({ req, res })
+        context: ({ req, res}) => ({ req, res }),
+        uploads: {
+            maxFieldSize: 100000000, // 100 MB
+            maxFiles: 5
+        }
     });
 
     server.applyMiddleware({ app });
