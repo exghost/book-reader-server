@@ -8,9 +8,8 @@ const {
 } = require('fs');
 const { v4: uuidv4 } = require('uuid');
 const mimeTypes = require('mime-types');
-const { rejects } = require('assert');
 
-const uploadFileToFS = async ( stream, { filename, mimetype }, userId) => {
+const uploadFileToFS = async (stream, mimetype, userId) => {
     const userDirectory = path.join(process.cwd(), 'uploads', String(userId));
 
     try {
@@ -27,9 +26,10 @@ const uploadFileToFS = async ( stream, { filename, mimetype }, userId) => {
         stream
             .pipe(createWriteStream(targetPath))
             .on("close", () => {
-                resolve();
+                resolve(newFilename);
             })
             .on('error', (error) => {
+                unlink(targetPath);
                 reject(error);
             })
     });

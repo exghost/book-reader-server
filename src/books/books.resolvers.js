@@ -38,15 +38,18 @@ const resolvers = {
             if(!userId) throw new AuthenticationError('Must be logged in to add book');
             if(!file) throw new UserInputError('File must be included with query');
 
-            const { createReadStream, filename, mimetype } = await file;
+            const { createReadStream, mimetype } = await file;
 
             const stream = await createReadStream();
+            let filename;
 
             try {
-                await uploadFileToFS(stream, { filename, mimetype }, userId);
+                filename = await uploadFileToFS(stream, mimetype, userId);
             } catch(err) {
                 throw err;
             }
+
+            console.log(filename);
 
             return null;
             /*
