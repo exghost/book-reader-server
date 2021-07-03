@@ -2,7 +2,7 @@
   "name": "book-reader-server",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
     "build": "webpack --config webpack.%NODE_ENV%.js",
     "start": "node dist/server"
@@ -28,6 +28,7 @@
   },
   "dependencies": {
     "apollo-server": "^2.25.2",
-    "graphql": "^15.5.1"
+    "graphql": "^15.5.1",
+    "prisma": "^2.26.0"
   }
 }
