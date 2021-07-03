@@ -17,12 +17,12 @@ const typeDefs = gql`
     }
 
     type Mutation {
-        addBook(title: String!, file: Upload!): Book
+        addBook(data: CreateBookInput!, file: Upload!): Book
     }
 
     input CreateBookInput {
         title: String!
-        isbn: String!
+        isbn: String
     }
 `;
 

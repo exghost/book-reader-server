@@ -1,10 +1,8 @@
-const process = require('process');
-const path = require('path');
-const { createWriteStream, unlinkSync } = require('fs');
 const { 
     AuthenticationError,
     UserInputError
  } = require('apollo-server-express');
+ const { unlink } = require('fs');
 
 const { prisma } = require('../db');
 const { uploadFileToFS } = require('./upload');
@@ -33,7 +31,7 @@ const resolvers = {
         }
     },
     Mutation: {
-        addBook: async (_,  { title, file }, { req }) => {
+        addBook: async (_,  { data, file }, { req }) => {
             const { userId } = req; 
             if(!userId) throw new AuthenticationError('Must be logged in to add book');
             if(!file) throw new UserInputError('File must be included with query');
@@ -41,22 +39,26 @@ const resolvers = {
             const { createReadStream, mimetype } = await file;
 
             const stream = await createReadStream();
-            let filename;
+            let result;
 
             try {
-                filename = await uploadFileToFS(stream, mimetype, userId);
+                result = await uploadFileToFS(stream, mimetype, userId);
             } catch(err) {
                 throw err;
             }
 
-            console.log(filename);
-
-            return null;
-            /*
-            return prisma.book.create({
-                data: { title, isbn, ownerId: req.userId }
-            })
-            */
+            try {
+                return prisma.book.create({
+                    data: {
+                        title: data.title,
+                        isbn: data.isbn, 
+                        filename: result.filename, 
+                        ownerId: req.userId 
+                    }
+                });
+            } catch(err) {
+                unlink(result.targetPath);
+            }
         },
     },
     Book: {

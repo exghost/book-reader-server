@@ -26,7 +26,7 @@ const uploadFileToFS = async (stream, mimetype, userId) => {
         stream
             .pipe(createWriteStream(targetPath))
             .on("close", () => {
-                resolve(newFilename);
+                resolve({ filename: newFilename, targetPath });
             })
             .on('error', (error) => {
                 unlink(targetPath);
