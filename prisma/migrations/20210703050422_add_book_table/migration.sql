@@ -1,6 +1,6 @@
 -- CreateTable
 CREATE TABLE "Book" (
-    "id" BIGSERIAL NOT NULL,
+    "id" SERIAL NOT NULL,
     "title" TEXT NOT NULL,
     "isbn" TEXT,
     "ownerId" INTEGER NOT NULL,
