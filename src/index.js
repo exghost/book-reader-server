@@ -2,8 +2,9 @@ const { ApolloServer } = require('apollo-server-express');
 const express = require('express');
 const cookieParser = require('cookie-parser');
 
-const { userResolvers, userTypeDefs } = require('./users');
 const { verifyTokens } = require('./users/auth');
+const typeDefs = require('./graphql/typeDefs');
+const resolvers = require('./graphql/resolvers');
 
 const PORT = process.env.PORT || 4056;
 
@@ -15,8 +16,8 @@ const startServer = async() => {
     app.use(verifyTokens);
 
     const server = new ApolloServer({ 
-        typeDefs: userTypeDefs, 
-        resolvers: userResolvers,
+        typeDefs, 
+        resolvers,
         context: ({ req, res}) => ({ req, res })
     });
 
