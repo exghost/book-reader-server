@@ -64,6 +64,13 @@ const resolvers = {
 
             return true;
         }
+    },
+    User: {
+        books: (parent, args) => {
+            return prisma.book.findMany({
+                where: { ownerId: parent.id }
+            })
+        }
     }
 }
 
