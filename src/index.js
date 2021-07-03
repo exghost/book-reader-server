@@ -1,6 +1,11 @@
-const { ApolloServer, gql } = require('apollo-server');
+const { ApolloServer } = require('apollo-server-express');
+const express = require('express');
 
 const { userResolvers, userTypeDefs } = require('./users');
+
+const PORT = process.env.PORT || 4000;
+
+const app = express();
 
 const server = new ApolloServer({ 
     typeDefs: userTypeDefs, 
@@ -8,6 +13,8 @@ const server = new ApolloServer({
     mockEntireSchema: false
 });
 
-server.listen().then(({ url }) => {
-    console.log(`Server ready at ${url}`);
+server.applyMiddleware({ app });
+
+app.listen({ port: PORT }, () => {
+    console.log(`Server ready at http://localhost${PORT}${server.graphqlPath}`);
 });
