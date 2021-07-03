@@ -1,6 +1,6 @@
 const bcrypt = require('bcryptjs');
 
-const { prisma } = require('../db');
+const { prisma } = require('../../db');
 const { createTokens } = require('./auth');
 
 const resolvers = {

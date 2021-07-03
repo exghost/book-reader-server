@@ -4,7 +4,7 @@ const {
  } = require('apollo-server-express');
  const { unlink } = require('fs');
 
-const { prisma } = require('../db');
+const { prisma } = require('../../db');
 const { uploadFileToFS } = require('./upload');
 
 const resolvers = {

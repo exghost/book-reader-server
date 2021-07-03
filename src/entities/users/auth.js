@@ -1,6 +1,6 @@
 const { sign, verify } = require('jsonwebtoken');
 
-const { prisma } = require('../db');
+const { prisma } = require('../../db');
 
 const createTokens = (user) => {
     const refreshToken = sign(

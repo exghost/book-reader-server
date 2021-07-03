@@ -2,7 +2,7 @@ const { ApolloServer } = require('apollo-server-express');
 const express = require('express');
 const cookieParser = require('cookie-parser');
 
-const { verifyTokens } = require('./users/auth');
+const { verifyTokens } = require('./entities/users/auth');
 const typeDefs = require('./graphql/typeDefs');
 const resolvers = require('./graphql/resolvers');
 
