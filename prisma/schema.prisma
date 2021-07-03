@@ -16,9 +16,10 @@ model User {
 }
 
 model Book {
-  id BigInt @default(autoincrement()) @id
+  id Int @default(autoincrement()) @id
   title String
-  isbn String? 
+  isbn String?
+  filename String?
   owner User @relation(fields: [ownerId], references: [id])
   ownerId Int
 }
