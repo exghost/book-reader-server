@@ -4,6 +4,7 @@ const cookieParser = require('cookie-parser');
 const { verify } = require('jsonwebtoken');
 
 const { userResolvers, userTypeDefs } = require('./users');
+const { verifyTokens } = require('./users/auth');
 
 const PORT = process.env.PORT || 4056;
 
@@ -12,15 +13,7 @@ const startServer = async() => {
 
     app.use(cookieParser());
 
-    app.use((req, _, next) => {
-        const accessToken = req.cookies["access-token"];
-        try {
-            const data = verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
-            req.userId = data.userId;
-        } catch {}
-        
-        next();
-    })
+    app.use(verifyTokens);
 
     const server = new ApolloServer({ 
         typeDefs: userTypeDefs, 

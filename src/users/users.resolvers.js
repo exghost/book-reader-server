@@ -1,7 +1,7 @@
 const bcrypt = require('bcryptjs');
-const { sign } = require('jsonwebtoken');
 
 const { prisma } = require('../db');
+const { createTokens } = require('./auth');
 
 const resolvers = {
     Query: {
@@ -35,21 +35,11 @@ const resolvers = {
             });
 
             if(!user) return null;
-            
+
             const valid = bcrypt.compareSync(password, user.password);
             if(!valid) return null;
 
-            const refreshToken = sign(
-                { userId: user.id, count: user.count },
-                process.env.REFRESH_TOKEN_SECRET,
-                { expiresIn: "7d" }
-            );
-
-            const accessToken = sign(
-                { userId: user.id },
-                process.env.ACCESS_TOKEN_SECRET,
-                { expiresIn: "15min" }
-            );
+            const { accessToken, refreshToken } = createTokens(user);
 
             res.cookie("refresh-token", refreshToken);
             res.cookie("access-token", accessToken);
