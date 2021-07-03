@@ -5,12 +5,12 @@ const { createTokens } = require('./auth');
 
 const resolvers = {
     Query: {
-        user: (parent, args) => {
+        user: (_, args) => {
             return prisma.user.findFirst({
                 where: { id: Number(args.id) }
             })
         },
-        me: (parent, args, { req }) => {
+        me: (_, __, { req }) => {
             if(!req.userId) return null;
 
             return prisma.user.findFirst({
@@ -19,7 +19,7 @@ const resolvers = {
         }
     },
     Mutation: {
-        registerUser: (parent, { data }) => {
+        registerUser: (_, { data }) => {
             const { email, password } = data;
             const hashedPassword = bcrypt.hashSync(password, 12);
             return prisma.user.create({
@@ -29,7 +29,7 @@ const resolvers = {
                 }
             })
         },
-        login: async (parent, { email, password }, { res }) => {
+        login: async (_, { email, password }, { res }) => {
             const user = await prisma.user.findFirst({
                 where: { email }
             });
