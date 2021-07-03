@@ -4,6 +4,7 @@
   "description": "",
   "main": "src/index.js",
   "scripts": {
+    "preinstall": "npx npm-force-resolutions",
     "build": "webpack --config webpack.%NODE_ENV%.js",
     "start": "node dist/server"
   },
@@ -36,6 +37,12 @@
     "cookie-parser": "^1.4.5",
     "express": "^4.17.1",
     "graphql": "^15.5.1",
-    "jsonwebtoken": "^8.5.1"
+    "jsonwebtoken": "^8.5.1",
+    "mime-types": "^2.1.31",
+    "uuid": "^8.3.2"
+  },
+  "resolutions": {
+    "fs-capacitor": "^6.2.0",
+    "graphql-upload": "^11.0.0"
   }
 }
