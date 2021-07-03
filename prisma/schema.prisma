@@ -11,4 +11,5 @@ model User {
     id Int @default(autoincrement()) @id
     email String @unique
     password String
+    count Int @default(0)
 }
