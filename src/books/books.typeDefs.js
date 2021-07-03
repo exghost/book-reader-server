@@ -17,7 +17,7 @@ const typeDefs = gql`
     }
 
     type Mutation {
-        addBook(title: String!, file: Upload!): Book!
+        addBook(title: String!, file: Upload!): Book
     }
 
     input CreateBookInput {
