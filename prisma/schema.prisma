@@ -12,4 +12,13 @@ model User {
     email String @unique
     password String
     count Int @default(0)
+    books Book[]
+}
+
+model Book {
+  id BigInt @default(autoincrement()) @id
+  title String
+  isbn String? 
+  owner User @relation(fields: [ownerId], references: [id])
+  ownerId Int
 }
