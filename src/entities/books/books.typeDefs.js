@@ -5,6 +5,8 @@ const typeDefs = gql`
         id: ID!
         title: String!
         isbn: String
+        edition: Int
+        publishYear: Int
         filename: String
         owner: User!
         authors: [Author]
