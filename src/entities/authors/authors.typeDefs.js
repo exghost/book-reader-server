@@ -14,6 +14,7 @@ const typeDefs = gql`
     type Mutation {
         createAuthor(name: String!): Author
         addBookToAuthor(authorId: ID!, bookId: ID!): Author
+        removeBookFromAuthor(authorId: ID!, bookId: ID!): Author
     }
 `;
 
