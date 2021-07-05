@@ -6,17 +6,7 @@ const {
 
 const { prisma } = require('../../db');
 const { uploadFileToFS } = require('./upload');
-
-const userOwnsBook = async (userId, bookId) => {
-    const count = await prisma.book.count({
-        where: { 
-            id: Number(bookId),
-            ownerId: Number(userId)
-        }
-    });
-
-    return !!count;
-}
+const { userOwnsBook } = require('./books.validations');
 
 const resolvers = {
     Query: {
