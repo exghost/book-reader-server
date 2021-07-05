@@ -40,7 +40,7 @@ const resolvers = {
             const { userId } = req; 
             if(!userId) throw new AuthenticationError('Must be logged in to add book');
             if(!file) throw new UserInputError('File must be included with query');
-
+            console.log(data);
             const { createReadStream, mimetype } = await file;
 
             const stream = await createReadStream();
@@ -53,14 +53,34 @@ const resolvers = {
             }
 
             try {
-                return prisma.book.create({
+                const newBook = await prisma.book.create({
                     data: {
                         title: data.title,
                         isbn: data.isbn, 
+                        publishYear: Number(data.publishYear),
+                        edition: Number(data.edition),
                         filename: result.filename, 
-                        ownerId: req.userId 
+                        ownerId: req.userId
                     }
                 });
+
+                return await prisma.book.update({
+                    where: { id: newBook.id },
+                    data: {
+                        authors: {
+                            connectOrCreate: data.authors.map((authorName) => {
+                                return {
+                                    where: {
+                                        name: authorName
+                                    },
+                                    create: {
+                                        name: authorName
+                                    }
+                                }
+                            })
+                        }
+                    }
+                })
             } catch(err) {
                 unlink(result.targetPath);
             }

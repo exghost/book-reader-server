@@ -27,6 +27,9 @@ const typeDefs = gql`
     input CreateBookInput {
         title: String!
         isbn: String
+        edition: Int
+        publishYear: Int
+        authors: [String!]
     }
 
     input AddAuthorInput {
