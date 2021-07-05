@@ -21,6 +21,7 @@ const typeDefs = gql`
         addBook(data: CreateBookInput!, file: Upload!): Book
         addAuthorToBook(id: ID!, authorName: String!): Book
         addAuthorsToBook(id: ID!, authors: [AddAuthorInput!]!): Book
+        removeAuthorFromBook(bookId: ID!, authorId: ID!): Book
     }
 
     input CreateBookInput {

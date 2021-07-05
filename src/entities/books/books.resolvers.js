@@ -81,7 +81,7 @@ const resolvers = {
                         }
                     }
                 }
-            })
+            });
         },
         addAuthorsToBook: async (parent, { id, authors }, { req }) => {
             if(!req.userId) throw new AuthenticationError('Must be logged in to add author to book');
@@ -134,6 +134,23 @@ const resolvers = {
                     authors: { set: [...currentAuthors, ...existingAuthors], create: [...newAuthors] }
                 }
             });
+        },
+        removeAuthorFromBook: async (parent, { bookId, authorId }, { req }) => {
+            if(!req.userId) 
+                throw new AuthenticationError('Must be logged in to add author to book');
+            if(!(await userOwnsBook(req.userId, bookId))) 
+                throw new UserInputError(`Cannot edit book you do not own`);
+
+            return await prisma.book.update({
+                where: { id: Number(bookId) },
+                data: {
+                    authors: {
+                        disconnect: {
+                            id: Number(authorId)
+                        }
+                    }
+                }
+            })
         }
     },
     Book: {
