@@ -207,6 +207,41 @@ const resolvers = {
                 }
             })
         },
+        addTagToBook: async (parent, { bookId, tagLabel }, { req }) => {
+            if(!req.userId) 
+                throw new AuthenticationError('Must be logged in to add author to book');
+            if(!(await userOwnsBook(req.userId, bookId))) 
+                throw new UserInputError(`Cannot edit book you do not own`);
+
+            return await prisma.book.update({
+                where: { id: Number(bookId) },
+                data: {
+                    tags: {
+                        connectOrCreate: {
+                            where: { label: tagLabel },
+                            create: { label: tagLabel }
+                        }
+                    }
+                }
+            });
+        },
+        removeTagFromBook: async (parent, { bookId, tagLabel }, { req }) => {
+            if(!req.userId) 
+                throw new AuthenticationError('Must be logged in to add author to book');
+            if(!(await userOwnsBook(req.userId, bookId))) 
+                throw new UserInputError(`Cannot edit book you do not own`);
+
+            return await prisma.book.update({
+                where: { id: Number(bookId) },
+                data: {
+                    tags: {
+                        disconnect: {
+                            label: tagLabel
+                        }
+                    }
+                }
+            })
+        },
     },
     Book: {
         owner: (parent, args) => {
@@ -223,6 +258,11 @@ const resolvers = {
             return await prisma.book.findUnique({
                 where: { id: parent.id }
             }).genres();
+        },
+        tags: async(parent, args) => {
+            return await prisma.book.findUnique({
+                where: { id: parent.id }
+            }).tags();
         }
     }
 }

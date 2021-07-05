@@ -11,6 +11,7 @@ const typeDefs = gql`
         owner: User!
         authors: [Author]
         genres: [Genre]
+        tags: [Tag]
     }
 
     type Query {
@@ -27,6 +28,8 @@ const typeDefs = gql`
         removeAuthorFromBook(bookId: ID!, authorId: ID!): Book
         addGenreToBook(bookId: ID!, genreLabel: String!): Book
         removeGenreFromBook(bookId: ID!, genreLabel: String!): Book
+        addTagToBook(bookId: ID!, tagLabel: String!): Book
+        removeTagFromBook(bookId: ID!, tagLabel: String!): Book
     }
 
     input CreateBookInput {
@@ -36,6 +39,7 @@ const typeDefs = gql`
         publishYear: Int
         authors: [String!]
         genres: [String!]
+        tags: [String!]
     }
 
     input AddAuthorInput {
