@@ -19,7 +19,8 @@ const typeDefs = gql`
 
     type Mutation {
         addBook(data: CreateBookInput!, file: Upload!): Book
-        addAuthorsToBook(id: ID!, authors: [AddAuthorInput]!): Book
+        addAuthorToBook(id: ID!, authorName: String!): Book
+        addAuthorsToBook(id: ID!, authors: [AddAuthorInput!]!): Book
     }
 
     input CreateBookInput {

@@ -7,6 +7,17 @@ const {
 const { prisma } = require('../../db');
 const { uploadFileToFS } = require('./upload');
 
+const userOwnsBook = async (userId, bookId) => {
+    const count = await prisma.book.count({
+        where: { 
+            id: Number(bookId),
+            ownerId: Number(userId)
+        }
+    });
+
+    return !!count;
+}
+
 const resolvers = {
     Query: {
         book: (parent, args) => {
@@ -64,6 +75,24 @@ const resolvers = {
                 unlink(result.targetPath);
             }
         },
+        addAuthorToBook: async (parent, {id, authorName}, { req }) => {
+            if(!req.userId) 
+                throw new AuthenticationError('Must be logged in to add author to book');
+            if(!(await userOwnsBook(req.userId, id))) 
+                throw new UserInputError(`Cannot edit book you do not own`);
+
+            return await prisma.book.update({
+                where: { id: Number(id) },
+                data: {
+                    authors: {
+                        connectOrCreate: {
+                            where: { name: authorName },
+                            create: { name: authorName }
+                        }
+                    }
+                }
+            })
+        },
         addAuthorsToBook: async (parent, { id, authors }, { req }) => {
             if(!req.userId) throw new AuthenticationError('Must be logged in to add author to book');
 
@@ -73,8 +102,6 @@ const resolvers = {
             });
 
             if(!book) throw new UserInputError(`Cannot edit book you do not own`);
-
-            
 
             let newAuthors = authors
                                 .filter(({ id }) => !id)
@@ -108,15 +135,15 @@ const resolvers = {
 
             existingAuthors = [...existingAuthors, ...existingNewAuthors];
 
-            //let currentAuthors = await book.authors();
-            // currentAuthors = currentAuthors.map(({ id }) => { return { id }});
+            let currentAuthors = book.authors;
+            currentAuthors = currentAuthors.map(({ id }) => { return { id }});
 
-            // return await prisma.book.update({
-            //     where: { id: Number(id) },
-            //     data: {
-            //         authors: { set: [...currentAuthors, ...existingAuthors], create: [...newAuthors] }
-            //     }
-            // });
+            return await prisma.book.update({
+                where: { id: Number(id) },
+                data: {
+                    authors: { set: [...currentAuthors, ...existingAuthors], create: [...newAuthors] }
+                }
+            });
         }
     },
     Book: {
