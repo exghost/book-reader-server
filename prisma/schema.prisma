@@ -27,6 +27,6 @@ model Book {
 
 model Author {
   id Int @default(autoincrement()) @id
-  name String
+  name String @unique
   books Book[]
 }
