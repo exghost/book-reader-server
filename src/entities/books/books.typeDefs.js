@@ -8,6 +8,7 @@ const typeDefs = gql`
         filename: String
         owner: User!
         authors: [Author]
+        genres: [Genre]
     }
 
     type Query {
@@ -22,6 +23,8 @@ const typeDefs = gql`
         addAuthorToBook(id: ID!, authorName: String!): Book
         addAuthorsToBook(id: ID!, authors: [AddAuthorInput!]!): Book
         removeAuthorFromBook(bookId: ID!, authorId: ID!): Book
+        addGenreToBook(bookId: ID!, genreLabel: String!): Book
+        removeGenreFromBook(bookId: ID!, genreLabel: String!): Book
     }
 
     input CreateBookInput {
@@ -30,6 +33,7 @@ const typeDefs = gql`
         edition: Int
         publishYear: Int
         authors: [String!]
+        genres: [String!]
     }
 
     input AddAuthorInput {
