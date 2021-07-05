@@ -25,10 +25,24 @@ model Book {
   owner User @relation(fields: [ownerId], references: [id])
   ownerId Int
   authors Author[]
+  genres Genre[]
+  tags Tag[]
 }
 
 model Author {
   id Int @default(autoincrement()) @id
   name String @unique
+  books Book[]
+}
+
+model Genre {
+  id Int @default(autoincrement()) @id
+  label String @unique
+  books Book[]
+}
+
+model Tag {
+  id Int @default(autoincrement()) @id
+  label String @unique
   books Book[]
 }
