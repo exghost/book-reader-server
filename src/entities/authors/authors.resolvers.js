@@ -1,3 +1,6 @@
+const { AuthenticationError, UserInputError } = require('apollo-server-express');
+
+const { userOwnsBook } = require('../books/books.validations');
 const { prisma } = require('../../db');
 
 const resolvers = {
@@ -12,6 +15,22 @@ const resolvers = {
         createAuthor: async (parent, { name }) => {
             return await prisma.author.create({
                 data: { name }
+            });
+        },
+        addBookToAuthor: async (parent, { bookId, authorId }, { req }) => {
+            if(!req.userId) throw new AuthenticationError('Must be logged in to add book to author');
+            if(!(await userOwnsBook(req.userId, bookId)))
+                throw new UserInputError(`Cannot edit book you do not own`);
+
+            return await prisma.author.update({
+                where: { id: Number(authorId) },
+                data: {
+                    books: {
+                        connect: {
+                            id: Number(bookId)
+                        }
+                    }
+                }
             });
         }
     },
