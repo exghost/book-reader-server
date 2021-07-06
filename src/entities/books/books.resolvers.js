@@ -41,7 +41,7 @@ const resolvers = {
             const { userId } = req; 
             if(!userId) throw new AuthenticationError('Must be logged in to make this change');
             if(!file) throw new UserInputError('File must be included with query');
-            console.log(data);
+            
             const { createReadStream, mimetype } = await file;
 
             const stream = await createReadStream();

@@ -40,6 +40,8 @@ const createDirectory = async (dirPath) => {
         if(!existsSync(dirPath)) {
             await mkdir(dirPath, { recursive: true }, (err) => {
                 if(err) throw err;
+
+                console.log(`${dirPath} created`);
             });
         }
     } catch(err) {
