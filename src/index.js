@@ -20,8 +20,8 @@ const startServer = async() => {
         resolvers,
         context: ({ req, res}) => ({ req, res }),
         uploads: {
-            maxFieldSize: 100000000, // 100 MB
-            maxFiles: 5
+            maxFieldSize: process.env.UPLOAD_SIZE_LIMIT,
+            maxFiles: process.env.UPLOAD_FILE_LIMIT
         }
     });
 
