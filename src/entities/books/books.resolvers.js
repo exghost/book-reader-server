@@ -7,6 +7,7 @@ const {
 const { prisma } = require('../../db');
 const { uploadFileToFS } = require('./upload');
 const { userOwnsBook } = require('./books.validations');
+const { IgnorePlugin } = require('webpack');
 
 const resolvers = {
     Query: {
@@ -38,7 +39,7 @@ const resolvers = {
     Mutation: {
         addBook: async (_,  { data, file }, { req }) => {
             const { userId } = req; 
-            if(!userId) throw new AuthenticationError('Must be logged in to add book');
+            if(!userId) throw new AuthenticationError('Must be logged in to make this change');
             if(!file) throw new UserInputError('File must be included with query');
             console.log(data);
             const { createReadStream, mimetype } = await file;
@@ -52,8 +53,10 @@ const resolvers = {
                 throw err;
             }
 
+            let newBook
+
             try {
-                const newBook = await prisma.book.create({
+                newBook = await prisma.book.create({
                     data: {
                         title: data.title,
                         isbn: data.isbn, 
@@ -63,31 +66,59 @@ const resolvers = {
                         ownerId: req.userId
                     }
                 });
-
-                return await prisma.book.update({
-                    where: { id: newBook.id },
-                    data: {
-                        authors: {
-                            connectOrCreate: data.authors.map((authorName) => {
-                                return {
-                                    where: {
-                                        name: authorName
-                                    },
-                                    create: {
-                                        name: authorName
-                                    }
-                                }
-                            })
-                        }
-                    }
-                })
             } catch(err) {
                 unlink(result.targetPath);
             }
+
+            if(!data.authors) data.authors = [];
+            if(!data.genres) data.genres = [];
+            if(!data.tags) data.tags = [];
+            
+            return await prisma.book.update({
+                where: { id: newBook.id },
+                data: {
+                    authors: {
+                        connectOrCreate: data.authors.map((authorName) => {
+                            return {
+                                where: {
+                                    name: authorName
+                                },
+                                create: {
+                                    name: authorName
+                                }
+                            }
+                        })
+                    },
+                    genres: {
+                        connectOrCreate: data.genres.map((genreLabel) => {
+                            return {
+                                where: {
+                                    label: genreLabel
+                                },
+                                create: {
+                                    label: genreLabel
+                                }
+                            }
+                        })
+                    },
+                    tags: {
+                        connectOrCreate: data.tags.map((tagLabel) => {
+                            return {
+                                where: {
+                                    label: tagLabel
+                                },
+                                create: {
+                                    label: tagLabel
+                                }
+                            }
+                        })
+                    }
+                }
+            });
         },
         addAuthorToBook: async (parent, {id, authorName}, { req }) => {
             if(!req.userId) 
-                throw new AuthenticationError('Must be logged in to add author to book');
+                throw new AuthenticationError('Must be logged in to make this change');
             if(!(await userOwnsBook(req.userId, id))) 
                 throw new UserInputError(`Cannot edit book you do not own`);
 
@@ -104,65 +135,37 @@ const resolvers = {
             });
         },
         addAuthorsToBook: async (parent, { id, authors }, { req }) => {
-            if(!req.userId) throw new AuthenticationError('Must be logged in to add author to book');
+            if(!req.userId) 
+                throw new AuthenticationError('Must be logged in to make this change');
+            if(!(await userOwnsBook(req.userId, id))) 
+                throw new UserInputError(`Cannot edit book you do not own`);
 
-            let book = await prisma.book.findFirst({
-                where: { id: Number(id), ownerId: req.userId },
-                include: { authors: true }
-            });
-
-            if(!book) throw new UserInputError(`Cannot edit book you do not own`);
-
-            let newAuthors = authors
-                                .filter(({ id }) => !id)
-                                .map(({ name }) => { return { name }});
-            let existingAuthors = authors
-                                .filter(({ id }) => id)
-                                .map(({ id }) =>  {
-                                    return { id: Number(id) };
-                                });
-
-            let existingNewAuthors = await prisma.author.findMany({
-                where: { 
-                    name: {
-                        in:  newAuthors.map((author) => author.name)
+            return await prism.book.update({
+                where: { id: Number(id) },
+                data: {
+                    authors: {
+                        connectOrCreate: authors.map((author) => {
+                            return {
+                                where: {
+                                    name: author
+                                },
+                                create: {
+                                    name: author
+                                }
+                            }
+                        })
                     }
                 }
             });
-
-            newAuthors = newAuthors.reduce((acc, author) => {
-                if(existingNewAuthors
-                    .map(newAuthor => newAuthor.name)
-                    .includes(author.name)) {
-                    return acc;
-                }
-
-                return [...acc, author];
-            }, []);
-
-            existingNewAuthors = existingNewAuthors
-                                    .map(({ id }) => { return { id: Number(id) } });
-
-            existingAuthors = [...existingAuthors, ...existingNewAuthors];
-
-            let currentAuthors = book.authors;
-            currentAuthors = currentAuthors.map(({ id }) => { return { id }});
-
-            return await prisma.book.update({
-                where: { id: Number(id) },
-                data: {
-                    authors: { set: [...currentAuthors, ...existingAuthors], create: [...newAuthors] }
-                }
-            });
         },
-        removeAuthorFromBook: async (parent, { bookId, authorId }, { req }) => {
+        removeAuthorFromBook: async (parent, { id, authorId }, { req }) => {
             if(!req.userId) 
-                throw new AuthenticationError('Must be logged in to add author to book');
-            if(!(await userOwnsBook(req.userId, bookId))) 
+                throw new AuthenticationError('Must be logged in to make this change');
+            if(!(await userOwnsBook(req.userId, id))) 
                 throw new UserInputError(`Cannot edit book you do not own`);
 
             return await prisma.book.update({
-                where: { id: Number(bookId) },
+                where: { id: Number(id) },
                 data: {
                     authors: {
                         disconnect: {
@@ -172,14 +175,14 @@ const resolvers = {
                 }
             })
         },
-        addGenreToBook: async (parent, { bookId, genreLabel }, { req }) => {
+        addGenreToBook: async (parent, { id, genreLabel }, { req }) => {
             if(!req.userId) 
-                throw new AuthenticationError('Must be logged in to add author to book');
-            if(!(await userOwnsBook(req.userId, bookId))) 
+                throw new AuthenticationError('Must be logged in to make this change');
+            if(!(await userOwnsBook(req.userId, id))) 
                 throw new UserInputError(`Cannot edit book you do not own`);
 
             return await prisma.book.update({
-                where: { id: Number(bookId) },
+                where: { id: Number(id) },
                 data: {
                     genres: {
                         connectOrCreate: {
@@ -190,14 +193,14 @@ const resolvers = {
                 }
             });
         },
-        removeGenreFromBook: async (parent, { bookId, genreLabel }, { req }) => {
+        removeGenreFromBook: async (parent, { id, genreLabel }, { req }) => {
             if(!req.userId) 
-                throw new AuthenticationError('Must be logged in to add author to book');
-            if(!(await userOwnsBook(req.userId, bookId))) 
+                throw new AuthenticationError('Must be logged in to make this change');
+            if(!(await userOwnsBook(req.userId, id))) 
                 throw new UserInputError(`Cannot edit book you do not own`);
 
             return await prisma.book.update({
-                where: { id: Number(bookId) },
+                where: { id: Number(id) },
                 data: {
                     genres: {
                         disconnect: {
@@ -207,14 +210,14 @@ const resolvers = {
                 }
             })
         },
-        addTagToBook: async (parent, { bookId, tagLabel }, { req }) => {
+        addTagToBook: async (parent, { id, tagLabel }, { req }) => {
             if(!req.userId) 
-                throw new AuthenticationError('Must be logged in to add author to book');
-            if(!(await userOwnsBook(req.userId, bookId))) 
+                throw new AuthenticationError('Must be logged in to make this change');
+            if(!(await userOwnsBook(req.userId, id))) 
                 throw new UserInputError(`Cannot edit book you do not own`);
 
             return await prisma.book.update({
-                where: { id: Number(bookId) },
+                where: { id: Number(id) },
                 data: {
                     tags: {
                         connectOrCreate: {
@@ -225,14 +228,14 @@ const resolvers = {
                 }
             });
         },
-        removeTagFromBook: async (parent, { bookId, tagLabel }, { req }) => {
+        removeTagFromBook: async (parent, { id, tagLabel }, { req }) => {
             if(!req.userId) 
-                throw new AuthenticationError('Must be logged in to add author to book');
-            if(!(await userOwnsBook(req.userId, bookId))) 
+                throw new AuthenticationError('Must be logged in to make this change');
+            if(!(await userOwnsBook(req.userId, id))) 
                 throw new UserInputError(`Cannot edit book you do not own`);
 
             return await prisma.book.update({
-                where: { id: Number(bookId) },
+                where: { id: Number(id) },
                 data: {
                     tags: {
                         disconnect: {

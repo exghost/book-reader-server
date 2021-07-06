@@ -24,12 +24,12 @@ const typeDefs = gql`
     type Mutation {
         addBook(data: CreateBookInput!, file: Upload!): Book
         addAuthorToBook(id: ID!, authorName: String!): Book
-        addAuthorsToBook(id: ID!, authors: [AddAuthorInput!]!): Book
-        removeAuthorFromBook(bookId: ID!, authorId: ID!): Book
-        addGenreToBook(bookId: ID!, genreLabel: String!): Book
-        removeGenreFromBook(bookId: ID!, genreLabel: String!): Book
-        addTagToBook(bookId: ID!, tagLabel: String!): Book
-        removeTagFromBook(bookId: ID!, tagLabel: String!): Book
+        addAuthorsToBook(id: ID!, authors: [String!]!): Book
+        removeAuthorFromBook(id: ID!, authorId: ID!): Book
+        addGenreToBook(id: ID!, genreLabel: String!): Book
+        removeGenreFromBook(id: ID!, genreLabel: String!): Book
+        addTagToBook(id: ID!, tagLabel: String!): Book
+        removeTagFromBook(id: ID!, tagLabel: String!): Book
     }
 
     input CreateBookInput {
