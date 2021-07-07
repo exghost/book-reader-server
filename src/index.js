@@ -9,7 +9,7 @@ const resolvers = require('./graphql/resolvers');
 const PORT = process.env.PORT || 4056;
 
 const corsOptions = {
-    origin: 'http://localhost:3000',
+    origin: process.env.FRONTEND_URL,
     credentials: true
 }
 
