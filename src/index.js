@@ -8,6 +8,11 @@ const resolvers = require('./graphql/resolvers');
 
 const PORT = process.env.PORT || 4056;
 
+const corsOptions = {
+    origin: 'http://localhost:3000',
+    credentials: true
+}
+
 const startServer = async() => {
     const app = express();
 
@@ -25,7 +30,7 @@ const startServer = async() => {
         }
     });
 
-    server.applyMiddleware({ app });
+    server.applyMiddleware({ app, cors: corsOptions });
 
     app.listen({ port: PORT }, () => {
         console.log(`Server ready at http://localhost:${PORT}${server.graphqlPath}`);
