@@ -1,3 +1,4 @@
+const { AuthenticationError } = require('apollo-server-express');
 const bcrypt = require('bcryptjs');
 
 const { prisma } = require('../../db');
@@ -19,24 +20,28 @@ const resolvers = {
         }
     },
     Mutation: {
-        registerUser: (_,  { email, password }) => {
+        registerUser: async (_,  { email, password }) => {
             const hashedPassword = bcrypt.hashSync(password, 12);
-            return prisma.user.create({
+            let newUser;
+
+            newUser = await prisma.user.create({
                 data: {
                     email,
                     password: hashedPassword
                 }
-            })
+            });
+
+            return newUser;
         },
         login: async (_, { email, password }, { res }) => {
             const user = await prisma.user.findFirst({
                 where: { email }
             });
 
-            if(!user) return null;
+            if(!user) throw new AuthenticationError('Authentication failed');
 
             const valid = bcrypt.compareSync(password, user.password);
-            if(!valid) return null;
+            if(!valid) throw new AuthenticationError('Authentication failed');
 
             const { accessToken, refreshToken } = createTokens(user);
 
