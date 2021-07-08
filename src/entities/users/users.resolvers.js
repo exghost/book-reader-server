@@ -7,14 +7,14 @@ const { createTokens } = require('./auth');
 const resolvers = {
     Query: {
         user: (_, args) => {
-            return prisma.user.findFirst({
+            return prisma.user.findUnique({
                 where: { id: Number(args.id) }
             })
         },
         me: (_, __, { req }) => {
             if(!req.userId) return null;
 
-            return prisma.user.findFirst({
+            return prisma.user.findUnique({
                 where: { id: Number(req.userId) }
             });
         }
@@ -34,7 +34,7 @@ const resolvers = {
             return newUser;
         },
         login: async (_, { email, password }, { res }) => {
-            const user = await prisma.user.findFirst({
+            const user = await prisma.user.findUnique({
                 where: { email }
             });
 
@@ -53,7 +53,7 @@ const resolvers = {
         invalidateTokens: async (_, __, { res, req }) => {
             if(!req.userId) return false;
 
-            const user = await prisma.user.findFirst({
+            const user = await prisma.user.findUnique({
                 where: { id: req.userId }
             });
 

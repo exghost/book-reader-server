@@ -12,19 +12,35 @@ const { IgnorePlugin } = require('webpack');
 const resolvers = {
     Query: {
         book: (parent, args) => {
-            return prisma.book.findFirst({
-                where: { id: Number(args.id) }
+            return prisma.book.findUnique({
+                where: { id: Number(args.id) },
+                include: {
+                    authors: true,
+                    owner: true,
+                    genres: true,
+                    tags: true
+                }
             });
         },
         allBooks: (parent, args) => {
             return prisma.book.findMany({
-                include: { authors: true }
+                include: {
+                    authors: true,
+                    owner: true,
+                    genres: true,
+                    tags: true
+                }
             });
         },
         booksByOwner: (parent, args) => {
             return prisma.book.findMany({
                 where: { ownerId: Number(args.id) },
-                include: { authors: true }
+                include: {
+                    authors: true,
+                    owner: true,
+                    genres: true,
+                    tags: true
+                }
             });
         },
         booksByCurrentUser: (parent, args, { res, req }) => {
@@ -32,7 +48,12 @@ const resolvers = {
 
             return prisma.book.findMany({
                 where: { ownerId: req.userId },
-                include: { authors: true }
+                include: {
+                    authors: true,
+                    owner: true,
+                    genres: true,
+                    tags: true
+                }
             });
         }
     },
@@ -248,12 +269,12 @@ const resolvers = {
     },
     Book: {
         owner: (parent, args) => {
-            return prisma.user.findFirst({
+            return prisma.user.findUnique({
                 where: { id: parent.ownerId }
             });
         },
         authors: async (parent, args) => {
-            return await prisma.book.findFirst({
+            return await prisma.book.findUnique({
                 where: { id: parent.id }
             }).authors();
         },

@@ -8,7 +8,7 @@ const resolvers = {
         author: (parent, { id }) => {
             return prisma.author.findUnique({
                 where: { id: Number(id) },
-                include: { books }
+                include: { books: true }
             });
         }
     },
