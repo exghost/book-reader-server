@@ -214,6 +214,30 @@ const resolvers = {
                 }
             });
         },
+        addGenresToBook: async (parent, { id, genres }, { req }) => {
+            if(!req.userId) 
+                throw new AuthenticationError('Must be logged in to make this change');
+            if(!(await userOwnsBook(req.userId, id))) 
+                throw new UserInputError(`Cannot edit book you do not own`);
+
+            return await prism.book.update({
+                where: { id: Number(id) },
+                data: {
+                    genres: {
+                        connectOrCreate: genres.map((genre) => {
+                            return {
+                                where: {
+                                    name: genre
+                                },
+                                create: {
+                                    name: genre
+                                }
+                            }
+                        })
+                    }
+                }
+            });
+        },
         removeGenreFromBook: async (parent, { id, genreLabel }, { req }) => {
             if(!req.userId) 
                 throw new AuthenticationError('Must be logged in to make this change');
@@ -245,6 +269,30 @@ const resolvers = {
                             where: { label: tagLabel },
                             create: { label: tagLabel }
                         }
+                    }
+                }
+            });
+        },
+        addTagsToBook: async (parent, { id, tags }, { req }) => {
+            if(!req.userId) 
+                throw new AuthenticationError('Must be logged in to make this change');
+            if(!(await userOwnsBook(req.userId, id))) 
+                throw new UserInputError(`Cannot edit book you do not own`);
+
+            return await prism.book.update({
+                where: { id: Number(id) },
+                data: {
+                    tags: {
+                        connectOrCreate: tags.map((tag) => {
+                            return {
+                                where: {
+                                    name: tag
+                                },
+                                create: {
+                                    name: tag
+                                }
+                            }
+                        })
                     }
                 }
             });

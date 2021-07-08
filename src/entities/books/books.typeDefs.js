@@ -27,8 +27,10 @@ const typeDefs = gql`
         addAuthorsToBook(id: ID!, authors: [String!]!): Book
         removeAuthorFromBook(id: ID!, authorId: ID!): Book
         addGenreToBook(id: ID!, genreLabel: String!): Book
+        addGenresToBook(id: ID!, genres: [String!]!): Book
         removeGenreFromBook(id: ID!, genreLabel: String!): Book
         addTagToBook(id: ID!, tagLabel: String!): Book
+        addTagsToBook(id: ID!, tags: [String!]!): Book
         removeTagFromBook(id: ID!, tagLabel: String!): Book
     }
 
