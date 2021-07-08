@@ -6,8 +6,9 @@ const { prisma } = require('../../db');
 const resolvers = {
     Query: {
         author: (parent, { id }) => {
-            return prisma.author.findFirst({
-                where: { id: Number(id) }
+            return prisma.author.findUnique({
+                where: { id: Number(id) },
+                include: { books }
             });
         }
     },
@@ -52,7 +53,7 @@ const resolvers = {
     },
     Author: {
         books: async (parent, args) => {
-            return await prisma.author.findFirst({
+            return await prisma.author.findUnique({
                 where: { id: parent.id }
             }).books();
         }
