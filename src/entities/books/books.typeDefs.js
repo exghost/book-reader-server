@@ -23,6 +23,7 @@ const typeDefs = gql`
 
     type Mutation {
         addBook(data: CreateBookInput!, file: Upload!): Book
+        updateBook(data: EditBookInput!): Book
         addAuthorToBook(id: ID!, authorName: String!): Book
         addAuthorsToBook(id: ID!, authors: [String!]!): Book
         removeAuthorFromBook(id: ID!, authorId: ID!): Book
@@ -44,9 +45,18 @@ const typeDefs = gql`
         tags: [String!]
     }
 
-    input AddAuthorInput {
-        id: ID
-        name: String
+    input EditBookInput {
+        id: ID!
+        title: String!
+        isbn: String!
+        edition: Int!
+        publishYear: Int!
+        authors: [String]!
+        removedAuthors: [String]!
+        genres: [String]!
+        removedGenres: [String]!
+        tags: [String]!
+        removedTags: [String]!
     }
 `;
 

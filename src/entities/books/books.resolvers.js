@@ -137,6 +137,69 @@ const resolvers = {
                 }
             });
         },
+        updateBook: async (_, { data }, { req }) => {
+            const {
+                id,
+                title,
+                isbn,
+                edition,
+                publishYear,
+                authors,
+                removedAuthors,
+                genres,
+                removedGenres,
+                tags,
+                removedTags
+            } = data;
+
+            if(!req.userId) 
+                throw new AuthenticationError('Must be logged in to make this change');
+            if(!(await userOwnsBook(req.userId, id))) 
+                throw new UserInputError(`Cannot edit book you do not own`);
+
+            return await prisma.book.update({
+                where: { id: Number(id) },
+                data: {
+                    title,
+                    isbn,
+                    edition,
+                    publishYear,
+                    authors: {
+                        connectOrCreate: authors.map((name) => {
+                            return {
+                                where: { name },
+                                create: { name }
+                            }
+                        }),
+                        disconnect: removedAuthors.map((name) => {
+                            return { name }
+                        })
+                    },
+                    genres: {
+                        connectOrCreate: genres.map((label) => {
+                            return {
+                                where: { label },
+                                create: { label }
+                            }
+                        }),
+                        disconnect: removedGenres.map((label) => {
+                            return { label }
+                        })
+                    },
+                    tags: {
+                        connectOrCreate: tags.map((label) => {
+                            return {
+                                where: { label },
+                                create: { label }
+                            }
+                        }),
+                        disconnect: removedTags.map((label) => {
+                            return { label }
+                        })
+                    },
+                }
+            });
+        },
         addAuthorToBook: async (parent, {id, authorName}, { req }) => {
             if(!req.userId) 
                 throw new AuthenticationError('Must be logged in to make this change');
