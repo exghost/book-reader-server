@@ -10,6 +10,7 @@ const typeDefs = gql`
     type Query {
         genre(genreId: ID!): Genre
         allGenres: [Genre]
+        genreCount: Int
     }
 
     type Mutation {

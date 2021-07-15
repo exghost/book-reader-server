@@ -5,22 +5,25 @@ const { prisma } = require('../../db');
 
 const resolvers = {
     Query: {
-        genre: async (parent, { genreId }) => {
+        genre: async (_, { genreId }) => {
             return await prisma.genre.findUnique({
                 where: { id: Number(genreId) }
             });
         },
-        allGenres: async (parent, args) => {
+        allGenres: async () => {
             return await prisma.genre.findMany();
+        },
+        genreCount: async () => {
+            return await prisma.genre.count();
         }
     },
     Mutation: {
-        createGenre: async (parent, { label }) => {
+        createGenre: async (_, { label }) => {
             return await prisma.genre.create({
                 data: { label }
             });
         },
-        addBookToGenre: async (parent, { bookId, label }, { req }) => {
+        addBookToGenre: async (_, { bookId, label }, { req }) => {
             if(!req.userId) throw new AuthenticationError('Must be logged in to add book to author');
             if(!(await userOwnsBook(req.userId, bookId)))
                 throw new UserInputError(`Cannot edit book you do not own`);
@@ -36,7 +39,7 @@ const resolvers = {
                 }
             });
         },
-        removeBookFromGenre: async (parent, { bookId, label }, { req }) => {
+        removeBookFromGenre: async (_, { bookId, label }, { req }) => {
             if(!req.userId) throw new AuthenticationError('Must be logged in to remove book from author');
             if(!(await userOwnsBook(req.userId, bookId)))
                 throw new UserInputError(`Cannot edit book you do not own`);
@@ -54,7 +57,7 @@ const resolvers = {
         },
     },
     Genre: {
-        books: async (parent, args) => {
+        books: async (parent) => {
             return await prisma.genre.findUnique({
                 where: { id: parent.id }
             }).books();
