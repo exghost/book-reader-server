@@ -5,17 +5,17 @@ const { prisma } = require('../../db');
 
 const resolvers = {
     Query: {
-        author: (_, { id }) => {
-            return prisma.author.findUnique({
+        author: async (_, { id }) => {
+            return await prisma.author.findUnique({
                 where: { id: Number(id) },
                 include: { books: true }
             });
         },
-        allAuthors: () => {
-            return prisma.author.findMany();
+        allAuthors: async () => {
+            return await prisma.author.findMany();
         },
-        authorCount: () => {
-            return prisma.author.count();
+        authorCount: async () => {
+            return await prisma.author.count();
         }
     },
     Mutation: {
