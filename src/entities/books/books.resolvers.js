@@ -7,7 +7,6 @@ const {
 const { prisma } = require('../../db');
 const { uploadFileToFS } = require('./upload');
 const { userOwnsBook } = require('./books.validations');
-const { IgnorePlugin } = require('webpack');
 
 const resolvers = {
     Query: {
@@ -145,11 +144,8 @@ const resolvers = {
                 edition,
                 publishYear,
                 authors,
-                removedAuthors,
                 genres,
-                removedGenres,
                 tags,
-                removedTags
             } = data;
 
             if(!req.userId) 
@@ -157,6 +153,27 @@ const resolvers = {
             if(!(await userOwnsBook(req.userId, id))) 
                 throw new UserInputError(`Cannot edit book you do not own`);
 
+            const book = await prisma.book.findUnique({
+                where: { id: Number(id) },
+                include: {
+                    authors: true,
+                    genres: true,
+                    tags: true
+                }
+            });
+
+            let removedAuthors = book.authors.filter((author) => {
+                return !authors.includes(author.name);
+            });
+            
+            let removedGenres = book.genres.filter((genre) => {
+                return !genres.includes(genre.label);
+            });
+            
+            let removedTags = book.tags.filter((tag) => {
+                return !tags.includes(tag.label);
+            });
+            
             return await prisma.book.update({
                 where: { id: Number(id) },
                 data: {
@@ -171,30 +188,30 @@ const resolvers = {
                                 create: { name }
                             }
                         }),
-                        disconnect: removedAuthors.map((name) => {
+                        disconnect: removedAuthors.map(({name}) => {
                             return { name }
                         })
                     },
                     genres: {
                         connectOrCreate: genres.map((label) => {
                             return {
-                                where: { label },
-                                create: { label }
+                                where: { label: label.toLowerCase() },
+                                create: { label: label.toLowerCase() }
                             }
                         }),
-                        disconnect: removedGenres.map((label) => {
-                            return { label }
+                        disconnect: removedGenres.map(({label}) => {
+                            return { label: label.toLowerCase() }
                         })
                     },
                     tags: {
                         connectOrCreate: tags.map((label) => {
                             return {
-                                where: { label },
-                                create: { label }
+                                where: { label: label.toLowerCase() },
+                                create: { label: label.toLowerCase() }
                             }
                         }),
-                        disconnect: removedTags.map((label) => {
-                            return { label }
+                        disconnect: removedTags.map(({label}) => {
+                            return { label: label.toLowerCase() }
                         })
                     },
                 }

@@ -52,11 +52,8 @@ const typeDefs = gql`
         edition: Int!
         publishYear: Int!
         authors: [String]!
-        removedAuthors: [String]!
         genres: [String]!
-        removedGenres: [String]!
         tags: [String]!
-        removedTags: [String]!
     }
 `;
 
