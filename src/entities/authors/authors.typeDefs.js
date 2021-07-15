@@ -9,6 +9,7 @@ const typeDefs = gql`
 
     type Query {
         author(id: ID!): Author
+        allAuthors(): [Author]
     }
 
     type Mutation {

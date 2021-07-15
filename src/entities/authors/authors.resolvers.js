@@ -5,20 +5,23 @@ const { prisma } = require('../../db');
 
 const resolvers = {
     Query: {
-        author: (parent, { id }) => {
+        author: (_, { id }) => {
             return prisma.author.findUnique({
                 where: { id: Number(id) },
                 include: { books: true }
             });
+        },
+        allAuthors: () => {
+            return prisma.author.findMany();
         }
     },
     Mutation: {
-        createAuthor: async (parent, { name }) => {
+        createAuthor: async (_, { name }) => {
             return await prisma.author.create({
                 data: { name }
             });
         },
-        addBookToAuthor: async (parent, { id, bookId }, { req }) => {
+        addBookToAuthor: async (_, { id, bookId }, { req }) => {
             if(!req.userId) throw new AuthenticationError('Must be logged in to add book to author');
             if(!(await userOwnsBook(req.userId, bookId)))
                 throw new UserInputError(`Cannot edit book you do not own`);
@@ -34,7 +37,7 @@ const resolvers = {
                 }
             });
         },
-        removeBookFromAuthor: async (parent, { id, bookId }, { req }) => {
+        removeBookFromAuthor: async (_, { id, bookId }, { req }) => {
             if(!req.userId) throw new AuthenticationError('Must be logged in to remove book from author');
             if(!(await userOwnsBook(req.userId, bookId)))
                 throw new UserInputError(`Cannot edit book you do not own`);
@@ -52,7 +55,7 @@ const resolvers = {
         },
     },
     Author: {
-        books: async (parent, args) => {
+        books: async (parent) => {
             return await prisma.author.findUnique({
                 where: { id: parent.id }
             }).books();
