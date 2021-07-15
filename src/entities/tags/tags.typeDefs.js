@@ -10,6 +10,7 @@ const typeDefs = gql`
     type Query {
         tag(tagId: ID!): Tag
         allTags: [Tag]
+        tagCount: Int
     }
 
     type Mutation {

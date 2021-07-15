@@ -5,22 +5,25 @@ const { prisma } = require('../../db');
 
 const resolvers = {
     Query: {
-        tag: async (parent, { tagId }) => {
+        tag: async (_, { tagId }) => {
             return await prisma.tag.findUnique({
                 where: { id: Number(tagId) }
             });
         },
-        allTags: async (parent, args) => {
+        allTags: async () => {
             return await prisma.tag.findMany();
+        },
+        tagCount: async () => {
+            return await prisma.tag.count();
         }
     },
     Mutation: {
-        createTag: async (parent, { label }) => {
+        createTag: async (_, { label }) => {
             return await prisma.tag.create({
                 data: { label }
             });
         },
-        addBookToTag: async (parent, { bookId, label }, { req }) => {
+        addBookToTag: async (_, { bookId, label }, { req }) => {
             if(!req.userId) throw new AuthenticationError('Must be logged in to add book to author');
             if(!(await userOwnsBook(req.userId, bookId)))
                 throw new UserInputError(`Cannot edit book you do not own`);
@@ -36,7 +39,7 @@ const resolvers = {
                 }
             });
         },
-        removeBookFromTag: async (parent, { bookId, label }, { req }) => {
+        removeBookFromTag: async (_, { bookId, label }, { req }) => {
             if(!req.userId) throw new AuthenticationError('Must be logged in to remove book from author');
             if(!(await userOwnsBook(req.userId, bookId)))
                 throw new UserInputError(`Cannot edit book you do not own`);
@@ -54,7 +57,7 @@ const resolvers = {
         },
     },
     Tag: {
-        books: async (parent, args) => {
+        books: async (parent) => {
             return await prisma.tag.findUnique({
                 where: { id: parent.id }
             }).books();
