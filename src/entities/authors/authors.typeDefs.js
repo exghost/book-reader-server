@@ -10,6 +10,7 @@ const typeDefs = gql`
     type Query {
         author(id: ID!): Author
         allAuthors(): [Author]
+        authorCount(): Int
     }
 
     type Mutation {

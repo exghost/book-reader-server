@@ -13,6 +13,9 @@ const resolvers = {
         },
         allAuthors: () => {
             return prisma.author.findMany();
+        },
+        authorCount: () => {
+            return prisma.author.count();
         }
     },
     Mutation: {
